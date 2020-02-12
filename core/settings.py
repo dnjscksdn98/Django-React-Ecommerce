@@ -10,6 +10,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'e99zf4+9(%@@6mw^=t#w*b1%&(gfeh^b=3fp5o)(uti&lauq06'
 
+# Stripe secret key
+
+STRIPE_SECRET_KEY = 'sk_test_WxXNQZbVYFQdabJOXvDBZh0F00Hfu4Nmnp'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -28,15 +32,19 @@ INSTALLED_APPS = [
 
     'django.contrib.sites',
     'allauth',
+    'allauth.account',
     'allauth.socialaccount',
     'corsheaders',
     'rest_auth',
     'rest_auth.registration',
     'rest_framework',
     'rest_framework.authtoken',
-]
 
-SITE_ID = 1
+    'crispy_forms',
+    'django_countries',
+
+    'ecommerce',
+]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -54,7 +62,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,10 +126,38 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static_files')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ALLAUTH SETTINGS
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SITE_ID = 1
+
+# REDIRECT URL AFTER LOGIN
+
+LOGIN_REDIRECT_URL = '/'
+
+# CRISPY FORMS
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Cors headers
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
+
+# Rest framework
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
