@@ -5,7 +5,7 @@ from django_countries.fields import CountryField
 
 
 CATEGORY_CHOICES = (
-    ('T', 'TV'),
+    ('T', 'Tablet'),
     ('P', 'Phone'),
     ('L', 'Laptop')
 )
