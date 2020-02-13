@@ -42,9 +42,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'item',
-            'item_obj',
             'quantity',
-            'final_price'
+            'final_price',
+            'item_obj'
         ]
 
     def get_item_obj(self, obj):
