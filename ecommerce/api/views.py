@@ -60,6 +60,7 @@ class OrderDetailView(RetrieveAPIView):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
+    # fetching the queryset
     def get_object(self):
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
