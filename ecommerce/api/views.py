@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -9,9 +9,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.conf import settings
 from django.http import Http404
+from django_countries import countries
 
-from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon
-from .serializers import ItemSerializer, OrderSerializer
+from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon, Address
+from .serializers import ItemSerializer, OrderSerializer, AddressSerializer
 
 import stripe
 
@@ -186,3 +187,22 @@ class AddCouponView(APIView):
         order.coupon = coupon
         order.save()
         return Response(status=HTTP_200_OK)
+
+
+class AddressListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddressSerializer
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
+
+
+class AddressCreateView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddressSerializer
+    queryset = Address.objects.all()
+
+
+class CountryListView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(countries, status=HTTP_200_OK)

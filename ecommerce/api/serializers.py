@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from ecommerce.models import Item, OrderItem, Order, Coupon
+from django_countries.serializer_fields import CountryField
+
+from ecommerce.models import Item, OrderItem, Order, Coupon, Address
 
 
 class StringSerializer(serializers.StringRelatedField):
@@ -88,3 +90,19 @@ class OrderSerializer(serializers.ModelSerializer):
         if obj.coupon is not None:
             return CouponSerializer(obj.coupon).data
         return None
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    country = CountryField()
+
+    class Meta:
+        model = Address
+        fields = [
+            'id',
+            'street_address',
+            'apartment_address',
+            'country',
+            'zip',
+            'address_type',
+            'default'
+        ]

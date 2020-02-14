@@ -4,7 +4,10 @@ from .views import (
     AddToCartView,
     OrderDetailView,
     PaymentView,
-    AddCouponView
+    AddCouponView,
+    AddressListView,
+    AddressCreateView,
+    CountryListView
 )
 
 urlpatterns = [
@@ -12,5 +15,8 @@ urlpatterns = [
     path('add-to-cart/', AddToCartView.as_view(), name='add-to-cart'),
     path('order-summary/', OrderDetailView.as_view(), name='order-summary'),
     path('checkout/', PaymentView.as_view(), name='checkout'),
-    path('add-coupon/', AddCouponView.as_view(), name='add-coupon')
+    path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
+    path('address/list/', AddressListView.as_view(), name='address-list'),
+    path('address/create/', AddressCreateView.as_view(), name='address-create'),
+    path('country/list/', CountryListView.as_view(), name='country-list')
 ]
