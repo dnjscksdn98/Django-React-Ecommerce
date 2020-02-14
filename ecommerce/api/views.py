@@ -8,8 +8,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.conf import settings
+from django.http import Http404
 
-from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile
+from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon
 from .serializers import ItemSerializer, OrderSerializer
 
 import stripe
@@ -72,7 +73,7 @@ class OrderDetailView(RetrieveAPIView):
             return order
 
         except ObjectDoesNotExist:
-            return Response({'message': 'You do not have an active order.'}, status=HTTP_400_BAD_REQUEST)
+            raise Http404('You do not have an active order.')
 
 
 class PaymentView(APIView):
@@ -80,17 +81,17 @@ class PaymentView(APIView):
         order = Order.objects.get(user=self.request.user, ordered=False)
         userprofile = UserProfile.objects.get(user=self.request.user)
         token = request.data.get('stripeToken')
-        # save = form.cleaned_data.get('save')
-        # use_default = form.cleaned_data.get('use_default')
         save = False
         use_default = False
 
         if save:
+            # if stripe id already exists
             if userprofile.stripe_customer_id != '' and userprofile.stripe_customer_id is not None:
                 customer = stripe.Customer.retrieve(
                     userprofile.stripe_customer_id)
                 customer.sources.create(source=token)
 
+            # if stripe id doesn't exist
             else:
                 customer = stripe.Customer.create(
                     email=self.request.user.email,
@@ -119,10 +120,11 @@ class PaymentView(APIView):
                 )
 
             # create the payment
-            payment = Payment()
-            payment.stripe_charge_id = charge['id']
-            payment.user = self.request.user
-            payment.amount = order.get_total()
+            payment = Payment(
+                stripe_charge_id=charge['id'],
+                user=self.request.user,
+                amount=order.get_total()
+            )
             payment.save()
 
             # assign the payment to the order
@@ -133,7 +135,6 @@ class PaymentView(APIView):
 
             order.ordered = True
             order.payment = payment
-            # order.ref_code = create_ref_code()
             order.save()
 
             return Response(status=HTTP_200_OK)
@@ -170,3 +171,18 @@ class PaymentView(APIView):
             return Response({"message": "A serious error occurred. We have been notifed."}, status=HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
+
+
+class AddCouponView(APIView):
+    def post(self, request, *args, **kwargs):
+        code = request.data.get('code', None)
+
+        if code is None:
+            return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
+
+        order = Order.objects.get(
+            user=request.user, ordered=False)
+        coupon = get_object_or_404(Coupon, code=code)
+        order.coupon = coupon
+        order.save()
+        return Response(status=HTTP_200_OK)
