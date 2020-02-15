@@ -19,6 +19,11 @@ import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+class UserIDView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({'userID': request.user.id}, status=HTTP_200_OK)
+
+
 class ItemListView(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = ItemSerializer
@@ -194,7 +199,12 @@ class AddressListView(ListAPIView):
     serializer_class = AddressSerializer
 
     def get_queryset(self):
-        return Address.objects.filter(user=self.request.user)
+        queryset = Address.objects.all()
+        address_type = self.request.query_params.get('address_type', None)
+        if address_type is None:
+            return queryset
+
+        return queryset.filter(user=self.request.user, address_type=address_type)
 
 
 class AddressCreateView(CreateAPIView):

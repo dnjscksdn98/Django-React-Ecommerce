@@ -99,6 +99,7 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = [
             'id',
+            'user',
             'street_address',
             'apartment_address',
             'country',

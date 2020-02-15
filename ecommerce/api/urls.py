@@ -7,7 +7,8 @@ from .views import (
     AddCouponView,
     AddressListView,
     AddressCreateView,
-    CountryListView
+    CountryListView,
+    UserIDView
 )
 
 urlpatterns = [
@@ -18,5 +19,6 @@ urlpatterns = [
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
     path('address/list/', AddressListView.as_view(), name='address-list'),
     path('address/create/', AddressCreateView.as_view(), name='address-create'),
-    path('country/list/', CountryListView.as_view(), name='country-list')
+    path('country/list/', CountryListView.as_view(), name='country-list'),
+    path('user/id/', UserIDView.as_view(), name='user-id')
 ]
