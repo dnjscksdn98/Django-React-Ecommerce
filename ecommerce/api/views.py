@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -118,13 +118,6 @@ class PaymentView(APIView):
                 customer=userprofile.stripe_customer_id
             )
 
-            # charge once off on the token
-            # charge = stripe.Charge.create(
-            #     amount=amount,  # cents
-            #     currency="usd",
-            #     source=token
-            # )
-
             # create the payment
             payment = Payment(
                 stripe_charge_id=charge['id'],
@@ -200,17 +193,35 @@ class AddressListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
 
+    # fetch the requested queryset
     def get_queryset(self):
         queryset = Address.objects.all()
+
+        # get the param from the URL
         address_type = self.request.query_params.get('address_type', None)
+
+        # if param doesn't exist
         if address_type is None:
             return queryset
+
+        # return the filtered queryset
         return queryset.filter(user=self.request.user, address_type=address_type)
 
 
 class AddressCreateView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressSerializer
+    queryset = Address.objects.all()
+
+
+class AddressUpdateView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddressSerializer
+    queryset = Address.objects.all()
+
+
+class AddressDeleteView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Address.objects.all()
 
 

@@ -7,6 +7,8 @@ from .views import (
     AddCouponView,
     AddressListView,
     AddressCreateView,
+    AddressUpdateView,
+    AddressDeleteView,
     CountryListView,
     UserIDView
 )
@@ -19,6 +21,8 @@ urlpatterns = [
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
     path('address/list/', AddressListView.as_view(), name='address-list'),
     path('address/create/', AddressCreateView.as_view(), name='address-create'),
+    path('address/<pk>/update/', AddressUpdateView.as_view(), name='address-update'),
+    path('address/<pk>/delete/', AddressDeleteView.as_view(), name='address-delete'),
     path('country/list/', CountryListView.as_view(), name='country-list'),
     path('user/id/', UserIDView.as_view(), name='user-id')
 ]
