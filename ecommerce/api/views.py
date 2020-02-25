@@ -12,7 +12,7 @@ from django.http import Http404
 from django_countries import countries
 
 from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon, Address
-from .serializers import ItemSerializer, OrderSerializer, AddressSerializer
+from .serializers import ItemSerializer, OrderSerializer, AddressSerializer, PaymentSerializer
 
 import stripe
 
@@ -209,6 +209,14 @@ class PaymentView(APIView):
             return Response({"message": "A serious error occurred. We have been notifed."}, status=HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
+
+
+class PaymentListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PaymentSerializer
+
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user)
 
 
 class AddCouponView(APIView):
