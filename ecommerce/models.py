@@ -63,7 +63,7 @@ class Item(models.Model):
         })
 
 
-class Variation(models.Model):
+class Option(models.Model):
     item = models.ForeignKey('Item', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)  # color
 
@@ -76,8 +76,8 @@ class Variation(models.Model):
         return self.name
 
 
-class ItemVariation(models.Model):
-    variation = models.ForeignKey('Variation', on_delete=models.CASCADE)
+class OptionValue(models.Model):
+    option = models.ForeignKey('Option', on_delete=models.CASCADE)
     value = models.CharField(max_length=50)  # black, white, silver
     additional_price = models.FloatField(blank=True, null=True)
     default = models.BooleanField(default=False)
@@ -85,7 +85,7 @@ class ItemVariation(models.Model):
 
     class Meta:
         unique_together = (
-            ('variation', 'value'),
+            ('option', 'value'),
         )
 
     def __str__(self):
@@ -97,7 +97,7 @@ class OrderItem(models.Model):
                              on_delete=models.CASCADE)
     ordered = models.BooleanField(default=False)
     item = models.ForeignKey('Item', on_delete=models.CASCADE)
-    item_variations = models.ManyToManyField(ItemVariation)
+    item_options = models.ManyToManyField(OptionValue)
     quantity = models.IntegerField(default=1)
 
     def __str__(self):

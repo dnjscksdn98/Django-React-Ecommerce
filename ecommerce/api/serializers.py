@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from django_countries.serializer_fields import CountryField
 
-from ecommerce.models import Item, OrderItem, Order, Coupon, Address, Payment, Variation, ItemVariation
+from ecommerce.models import Item, OrderItem, Order, Coupon, Address, Payment, Option, OptionValue
 
 
-class StringSerializer(serializers.StringRelatedField):
-    def to_internal_value(self, value):
-        return value
+# class StringSerializer(serializers.StringRelatedField):
+#     def to_internal_value(self, value):
+#         return value
 
 
 class CouponSerializer(serializers.ModelSerializer):
@@ -45,9 +45,9 @@ class ItemSerializer(serializers.ModelSerializer):
         return obj.get_label_display()
 
 
-class ItemVariationSerializer(serializers.ModelSerializer):
+class OptionValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ItemVariation
+        model = OptionValue
         fields = [
             'id',
             'value',
@@ -57,25 +57,25 @@ class ItemVariationSerializer(serializers.ModelSerializer):
         ]
 
 
-class VariationSerializer(serializers.ModelSerializer):
-    item_variations = serializers.SerializerMethodField()
+class OptionSerializer(serializers.ModelSerializer):
+    item_options = serializers.SerializerMethodField()
 
     class Meta:
-        model = Variation
+        model = Option
         fields = [
             'id',
             'name',
-            'item_variations'
+            'item_options'
         ]
 
-    def get_item_variations(self, obj):
-        return ItemVariationSerializer(obj.itemvariation_set.all(), many=True).data
+    def get_item_options(self, obj):
+        return OptionValueSerializer(obj.optionvalue_set.all(), many=True).data
 
 
 class ItemDetailSerializer(serializers.ModelSerializer):
     category = serializers.SerializerMethodField()
     label = serializers.SerializerMethodField()
-    variations = serializers.SerializerMethodField()
+    options = serializers.SerializerMethodField()
 
     class Meta:
         model = Item
@@ -90,7 +90,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
             'short_description',
             'long_description',
             'image',
-            'variations'
+            'options'
         ]
 
     def get_category(self, obj):
@@ -99,41 +99,41 @@ class ItemDetailSerializer(serializers.ModelSerializer):
     def get_label(self, obj):
         return obj.get_label_display()
 
-    def get_variations(self, obj):
-        return VariationSerializer(obj.variation_set.all(), many=True).data
+    def get_options(self, obj):
+        return OptionSerializer(obj.option_set.all(), many=True).data
 
 
-class VariationDetailSerializer(serializers.ModelSerializer):
+class OptionDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Variation
+        model = Option
         fields = [
             'id',
             'name'
         ]
 
 
-class ItemVariationDetailSerializer(serializers.ModelSerializer):
-    variation = serializers.SerializerMethodField()
+class OptionValueDetailSerializer(serializers.ModelSerializer):
+    option = serializers.SerializerMethodField()
 
     class Meta:
-        model = ItemVariation
+        model = OptionValue
         fields = [
             'id',
-            'variation',
+            'option',
             'value',
             'additional_price',
             'default',
             'attachment'
         ]
 
-    def get_variation(self, obj):
-        return VariationDetailSerializer(obj.variation).data
+    def get_option(self, obj):
+        return OptionDetailSerializer(obj.option).data
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     # item = StringSerializer()
     item = serializers.SerializerMethodField()
-    item_variations = serializers.SerializerMethodField()
+    item_options = serializers.SerializerMethodField()
     final_price = serializers.SerializerMethodField()
 
     class Meta:
@@ -141,7 +141,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'item',
-            'item_variations',
+            'item_options',
             'quantity',
             'final_price',
         ]
@@ -149,8 +149,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_item(self, obj):
         return ItemSerializer(obj.item).data
 
-    def get_item_variations(self, obj):
-        return ItemVariationDetailSerializer(obj.item_variations.all(), many=True).data
+    def get_item_options(self, obj):
+        return OptionValueDetailSerializer(obj.item_options.all(), many=True).data
 
     def get_final_price(self, obj):
         return obj.get_final_price()

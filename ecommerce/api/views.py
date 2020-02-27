@@ -11,7 +11,7 @@ from django.conf import settings
 from django.http import Http404
 from django_countries import countries
 
-from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon, Address, Variation, ItemVariation
+from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon, Address, Option, OptionValue
 from .serializers import ItemSerializer, OrderSerializer, AddressSerializer, PaymentSerializer, ItemDetailSerializer
 
 import stripe
@@ -39,15 +39,15 @@ class ItemDetailView(RetrieveAPIView):
 class AddToCartView(APIView):
     def post(self, request, *args, **kwargs):
         slug = request.data.get('slug', None)
-        variations = request.data.get('variations', [])
+        options = request.data.get('options', [])
         if slug is None:
             return Response({'message': 'Invalid request.'}, status=HTTP_400_BAD_REQUEST)
 
         item = get_object_or_404(Item, slug=slug)
 
-        minimum_variation_count = Variation.objects.filter(item=item).count()
-        if len(variations) < minimum_variation_count:
-            return Response({'message': 'Please specify the required variations.'}, status=HTTP_400_BAD_REQUEST)
+        minimum_option_count = Option.objects.filter(item=item).count()
+        if len(options) < minimum_option_count:
+            return Response({'message': 'Please specify the required options.'}, status=HTTP_400_BAD_REQUEST)
 
         # get_or_create : returns a tuple
         order_item_queryset = OrderItem.objects.filter(
@@ -56,9 +56,9 @@ class AddToCartView(APIView):
             ordered=False
         )
 
-        for variation in variations:
+        for option in options:
             order_item_queryset = order_item_queryset.filter(
-                item_variations__exact=variation
+                item_options__exact=option
             )
 
         if order_item_queryset.exists():
@@ -71,7 +71,7 @@ class AddToCartView(APIView):
                 user=request.user,
                 ordered=False
             )
-            order_item.item_variations.add(*variations)
+            order_item.item_options.add(*options)
             order_item.save()
 
         order_queryset = Order.objects.filter(user=request.user, ordered=False)

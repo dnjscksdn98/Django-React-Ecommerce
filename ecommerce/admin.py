@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Item, OrderItem, Order, Payment, Coupon, Refund, Address, UserProfile, Variation, ItemVariation
+from .models import Item, OrderItem, Order, Payment, Coupon, Refund, Address, UserProfile, Option, OptionValue
 
 
 # create custom action
@@ -84,28 +84,28 @@ class AddressAdmin(admin.ModelAdmin):
     ]
 
 
-class ItemVariationAdmin(admin.ModelAdmin):
+class OptionValueAdmin(admin.ModelAdmin):
     list_display = [
-        'variation',
+        'option',
         'value',
         'additional_price',
         'attachment'
     ]
     list_filter = [
-        'variation',
-        'variation__item'
+        'option',
+        'option__item'
     ]
     search_fields = [
         'value'
     ]
 
 
-class ItemVariationInlineAdmin(admin.TabularInline):
-    model = ItemVariation
+class OptionValueInlineAdmin(admin.TabularInline):
+    model = OptionValue
     extra = 1
 
 
-class VariationAdmin(admin.ModelAdmin):
+class OptionAdmin(admin.ModelAdmin):
     list_display = [
         'item',
         'name'
@@ -116,12 +116,12 @@ class VariationAdmin(admin.ModelAdmin):
     search_fields = [
         'name'
     ]
-    inlines = [ItemVariationInlineAdmin]
+    inlines = [OptionValueInlineAdmin]
 
 
 admin.site.register(Item)
-admin.site.register(Variation, VariationAdmin)
-admin.site.register(ItemVariation, ItemVariationAdmin)
+admin.site.register(Option, OptionAdmin)
+admin.site.register(OptionValue, OptionValueAdmin)
 admin.site.register(OrderItem)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Payment)
