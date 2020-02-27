@@ -11,8 +11,8 @@ from django.conf import settings
 from django.http import Http404
 from django_countries import countries
 
-from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon, Address
-from .serializers import ItemSerializer, OrderSerializer, AddressSerializer, PaymentSerializer
+from ecommerce.models import Item, Order, OrderItem, Payment, UserProfile, Coupon, Address, Variation, ItemVariation
+from .serializers import ItemSerializer, OrderSerializer, AddressSerializer, PaymentSerializer, ItemDetailSerializer
 
 import stripe
 
@@ -30,34 +30,59 @@ class ItemListView(ListAPIView):
     queryset = Item.objects.all()
 
 
+class ItemDetailView(RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = ItemDetailSerializer
+    queryset = Item.objects.all()
+
+
 class AddToCartView(APIView):
     def post(self, request, *args, **kwargs):
         slug = request.data.get('slug', None)
+        variations = request.data.get('variations', [])
         if slug is None:
             return Response({'message': 'Invalid request.'}, status=HTTP_400_BAD_REQUEST)
 
         item = get_object_or_404(Item, slug=slug)
+
+        minimum_variation_count = Variation.objects.filter(item=item).count()
+        if len(variations) < minimum_variation_count:
+            return Response({'message': 'Please specify the required variations.'}, status=HTTP_400_BAD_REQUEST)
+
         # get_or_create : returns a tuple
-        order_item, created = OrderItem.objects.get_or_create(
+        order_item_queryset = OrderItem.objects.filter(
             item=item,
             user=request.user,
             ordered=False
         )
-        order_queryset = Order.objects.filter(user=request.user, ordered=False)
 
+        for variation in variations:
+            order_item_queryset = order_item_queryset.filter(
+                item_variations__exact=variation
+            )
+
+        if order_item_queryset.exists():
+            order_item = order_item_queryset.first()
+            order_item.quantity += 1
+            order_item.save()
+        else:
+            order_item = OrderItem.objects.create(
+                item=item,
+                user=request.user,
+                ordered=False
+            )
+            order_item.item_variations.add(*variations)
+            order_item.save()
+
+        order_queryset = Order.objects.filter(user=request.user, ordered=False)
         # if there is an active order
         if order_queryset.exists():
             order = order_queryset.first()
-            # if the item is in the order
-            if order.items.filter(item__slug=item.slug).exists():
-                order_item.quantity += 1
-                order_item.save()
-                return Response(status=HTTP_200_OK)
 
             # if it is not in the order
-            else:
+            if not order.items.filter(item__id=order_item.id).exists():
                 order.items.add(order_item)
-                return Response(status=HTTP_200_OK)
+            return Response(status=HTTP_200_OK)
 
         # if there is no active order
         else:

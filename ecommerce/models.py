@@ -40,7 +40,8 @@ class Item(models.Model):
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=2)
     label = models.CharField(choices=LABEL_CHOICES, max_length=1)
     slug = models.SlugField()
-    description = models.TextField()
+    short_description = models.TextField()
+    long_description = models.TextField()
     image = models.ImageField(blank=True, null=True)
 
     def __str__(self):
@@ -62,11 +63,41 @@ class Item(models.Model):
         })
 
 
+class Variation(models.Model):
+    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)  # color
+
+    class Meta:
+        unique_together = (
+            ('item', 'name'),
+        )
+
+    def __str__(self):
+        return self.name
+
+
+class ItemVariation(models.Model):
+    variation = models.ForeignKey('Variation', on_delete=models.CASCADE)
+    value = models.CharField(max_length=50)  # black, white, silver
+    additional_price = models.FloatField(blank=True, null=True)
+    default = models.BooleanField(default=False)
+    attachment = models.ImageField(blank=True, null=True)
+
+    class Meta:
+        unique_together = (
+            ('variation', 'value'),
+        )
+
+    def __str__(self):
+        return self.value
+
+
 class OrderItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     ordered = models.BooleanField(default=False)
     item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    item_variations = models.ManyToManyField(ItemVariation)
     quantity = models.IntegerField(default=1)
 
     def __str__(self):
