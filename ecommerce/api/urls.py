@@ -1,21 +1,10 @@
 from django.urls import path
-from .views import (
-    ItemListView,
-    ItemDetailView,
-    AddToCartView,
-    SubtractItemQuantityView,
-    OrderItemDeleteView,
-    OrderDetailView,
-    PaymentView,
-    PaymentListView,
-    AddCouponView,
-    AddressListView,
-    AddressCreateView,
-    AddressUpdateView,
-    AddressDeleteView,
-    CountryListView,
-    UserIDView
-)
+from ecommerce.api.views.products import ItemListView, ItemDetailView, AddToCartView, SubtractItemQuantityView
+from ecommerce.api.views.orders import OrderDetailView, OrderItemDeleteView
+from ecommerce.api.views.payments import PaymentView, PaymentListView
+from ecommerce.api.views.addresses import AddressListView, AddressCreateView, AddressUpdateView, AddressDeleteView
+from ecommerce.api.views.views import UserIDView, AddCouponView, CountryListView
+
 
 urlpatterns = [
     path('products/', ItemListView.as_view(), name='product-list'),

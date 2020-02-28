@@ -68,9 +68,9 @@ class Option(models.Model):
     name = models.CharField(max_length=50)  # color
 
     class Meta:
-        unique_together = (
-            ('item', 'name'),
-        )
+        unique_together = [
+            ['item', 'name']
+        ]
 
     def __str__(self):
         return self.name
@@ -79,14 +79,15 @@ class Option(models.Model):
 class OptionValue(models.Model):
     option = models.ForeignKey('Option', on_delete=models.CASCADE)
     value = models.CharField(max_length=50)  # black, white, silver
+    # Todo : if additional price option is selected add the price
     additional_price = models.FloatField(blank=True, null=True)
     default = models.BooleanField(default=False)
     attachment = models.ImageField(blank=True, null=True)
 
     class Meta:
-        unique_together = (
-            ('option', 'value'),
-        )
+        unique_together = [
+            ['option', 'value']
+        ]
 
     def __str__(self):
         return self.value
@@ -191,6 +192,7 @@ class Payment(models.Model):
 
 class Coupon(models.Model):
     code = models.CharField(max_length=15)
+    # Todo : change to percentage
     amount = models.FloatField()
 
     def __str__(self):
