@@ -18,7 +18,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'item',
             'item_options',
             'quantity',
-            'final_price',
+            'final_price'
         ]
 
     def get_item(self, obj):

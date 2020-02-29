@@ -7,7 +7,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from ecommerce.models import Item, Option
+from ecommerce.models import Item, OrderItem, Order, Option
 from ecommerce.api.serializers.products import ItemSerializer, ItemDetailSerializer
 
 
@@ -32,11 +32,11 @@ class AddToCartView(APIView):
 
         item = get_object_or_404(Item, slug=slug)
 
+        # check if every option was selected
         minimum_option_count = Option.objects.filter(item=item).count()
         if len(options) < minimum_option_count:
             return Response({'message': 'Please specify the required options.'}, status=HTTP_400_BAD_REQUEST)
 
-        # get_or_create : returns a tuple
         order_item_queryset = OrderItem.objects.filter(
             item=item,
             user=request.user,
@@ -92,18 +92,19 @@ class SubtractItemQuantityView(APIView):
         if order_queryset.exists():
             order = order_queryset.first()
             # check if the item exists in the order
-            if order.items.filter(item__slug=slug).exists():
+            if order.items.filter(item__slug=item.slug).exists():
                 order_item = OrderItem.objects.filter(
                     item=item, user=request.user, ordered=False).first()
 
                 if order_item.quantity > 1:
                     order_item.quantity -= 1
                     order_item.save()
-                    return Response({'message': 'This item quantity was updated.'}, status=HTTP_200_OK)
 
                 else:
                     order.items.remove(order_item)
-                    return Response({'message': 'This item quantity was updated.'}, status=HTTP_200_OK)
+                    order.save()
+
+                return Response({'message': 'This item quantity was updated.'}, status=HTTP_200_OK)
 
             else:
                 return Response({'message': 'This item was not in your cart.'}, status=HTTP_400_BAD_REQUEST)

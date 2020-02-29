@@ -18,14 +18,14 @@ class AddCouponView(APIView):
         code = request.data.get('code', None)
 
         if code is None:
-            return Response({"message": "Invalid data received"}, status=HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid coupon code.'}, status=HTTP_400_BAD_REQUEST)
 
         order = Order.objects.get(
             user=request.user, ordered=False)
         coupon = get_object_or_404(Coupon, code=code)
         order.coupon = coupon
         order.save()
-        return Response(status=HTTP_200_OK)
+        return Response({'message': 'Coupon successfully submitted.'}, status=HTTP_200_OK)
 
 
 class CountryListView(APIView):
