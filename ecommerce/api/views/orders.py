@@ -5,7 +5,7 @@ from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 
 from ecommerce.models import Order, OrderItem
-from ecommerce.api.serializers.orders import OrderSerializer
+from ecommerce.api.serializers import OrderSerializer
 
 
 class OrderDetailView(RetrieveAPIView):

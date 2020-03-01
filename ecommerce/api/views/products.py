@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from ecommerce.models import Item, OrderItem, Order, Option
-from ecommerce.api.serializers.products import ItemSerializer, ItemDetailSerializer
+from ecommerce.api.serializers import ItemSerializer, ItemDetailSerializer
 
 
 class ItemListView(ListAPIView):

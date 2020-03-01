@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
 from ecommerce.models import Address
-from ecommerce.api.serializers.addresses import AddressSerializer
+from ecommerce.api.serializers import AddressSerializer
 
 
 class AddressListView(ListAPIView):

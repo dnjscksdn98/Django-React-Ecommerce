@@ -7,7 +7,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.conf import settings
 
 from ecommerce.models import Order, UserProfile, Address, Payment
-from ecommerce.api.serializers.payments import PaymentSerializer
+from ecommerce.api.serializers import PaymentSerializer
 
 import stripe
 
