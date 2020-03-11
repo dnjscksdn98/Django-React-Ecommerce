@@ -5,6 +5,8 @@
 __pycache__
 db.sqlite3
 media
+static_files
+templates
 migrations
 
 # Backup files # 
