@@ -1,6 +1,7 @@
 # Apple Store Application
 
-> Django로 구현한 애플스토어 어플리케이션
+> - Django로 구현한 애플스토어 어플리케이션
+> - [프론트엔드 보러가기](https://github.com/dnjscksdn98/apple-store-frontend)
 
 ## 프로젝트 구조 설명
 
